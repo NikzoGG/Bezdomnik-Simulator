@@ -1,6 +1,7 @@
 import random
 import pygame
 
+
 pygame.init()
 pygame.mixer.init()
 screen = pygame.display.set_mode((1200,640))
@@ -14,7 +15,7 @@ running = True
 
 #Zaduljitelni:
  #Add god mode which will be a secret. You will have infinite money,resources and you will be able to go through walls and fly around!
- #Napravi class za yes butona   
+ #Napravi interiora na shopa
 
 text_font = pygame.font.SysFont('Arial',45)
 text_font2 = pygame.font.SysFont('Arial',30)
@@ -52,6 +53,7 @@ clouds_x_pos = [100,300,500,700,900]
 
 #some variables
 showclockicon = False
+inshop = False
 
 #statistics
 money = 0
@@ -62,7 +64,7 @@ timerstart = False
 timer2 = 0
 timer2start = False
 timer1length = 100
-timer2length = 2000
+timer2length = 720
 timer3 = 0
 timer3start = False
 
@@ -91,14 +93,14 @@ class Player:
         if self.x > 1145:
             self.x = 1145
 
-        if self.x > 289 and self.x < 301 and self.y == 480:
+        if self.x > 289 and self.x < 301 and self.y == 480 and inshop == False:
             self.x = 290
-        if self.x > 389 and self.x < 401 and self.y == 480:
+        if self.x > 389 and self.x < 401 and self.y == 480 and inshop == False:
             self.x = 400
 
-        if 839 < self.x and 851 > self.x and self.y == 480:
+        if 839 < self.x and 851 > self.x and self.y == 480 and inshop == False:
             self.x = 840
-        if 964 < self.x and 974 > self.x and self.y == 480:
+        if 964 < self.x and 974 > self.x and self.y == 480 and inshop == False:
             self.x = 975
 
 
@@ -112,13 +114,13 @@ class Player:
 
         #collision stuff
         if 300 < self.x and 391 > self.x:
-            if self.y == 395:
+            if self.y == 395 and inshop == False:
                 self.grav = -1
 
         if 851 < self.x and 966 > self.x:
             if self.y == 395:
                 self.y = 405
-            if self.y == 405:
+            if self.y == 405 and inshop == False:
                 self.grav = -1
     
 
@@ -162,10 +164,11 @@ class QuestionPopUp:
 
 
 class Shop:
-    def __init__(self,x,y,types):   
+    def __init__(self,x,y,types,collided):   
         self.x = x
         self.y = y
         self.types = types
+        self.collided = collided
         self.rect = shopimg1.get_rect(topleft=(self.x,self.y))
 
     def important4(self):
@@ -175,13 +178,19 @@ class Shop:
     def type(self):
         if self.types == 1:
             self.rect = shopimg1.get_rect(topleft=(self.x,self.y))
-            screen.blit(shopimg1,self.rect)
+            if inshop == False:
+                screen.blit(shopimg1,self.rect)
 
         if self.types == 2:
             self.rect = shopimg2.get_rect(topleft=(self.x,self.y))
-            screen.blit(shopimg2,self.rect)
+            if inshop == False:
+                screen.blit(shopimg2,self.rect)
 
-        
+    def collidecheck(self):
+        if player1.rect.colliderect(self.rect):
+            self.collided = True
+        else:
+            self.collided = False
     
 
 
@@ -191,10 +200,10 @@ player1 = Player(10,10,480,0,False)
 
 trash1 = Trash(320,475,False)
 
-button1 = QuestionPopUp(400,300,430,320,'Would you like to interact with the trash?')
-button2 = QuestionPopUp(700,300,730,320,'Would you like to enter the shop?')
+button1 = QuestionPopUp(400,300,385,320,'Would you like to interact with the trash?')
+button2 = QuestionPopUp(400,300,430,320,'Would you like to enter the shop?')
 
-shop1 = Shop(900,520,1)
+shop1 = Shop(900,520,1,False)
 
 
 
@@ -225,7 +234,7 @@ while running:
                 
         
         #question popup1 yes button script:
-        if yes_rect.collidepoint(mousepos) and player1.notmove == False:
+        if yes_rect.collidepoint(mousepos) and player1.notmove == False and player1.rect.colliderect(trash1.rect):
             if pygame.mouse.get_pressed()[0] == 1 and timer2 == 0:
                 randomcash = random.random()
                 randomcash = random.randint(1,5)
@@ -237,6 +246,9 @@ while running:
                 timer2start = True
                 timer3start = True
 
+        if yes_rect.collidepoint(mousepos) and player1.notmove == False and player1.rect.colliderect(shop1.rect):
+            if pygame.mouse.get_pressed()[0] == 1:           
+                inshop = True
 
   
 
@@ -251,29 +263,35 @@ while running:
 
     #popup functions
     button1.important3()
+    button2.important3()
 
     #shop functions
     shop1.important4()
+    shop1.collidecheck()
 
 
 
 
     pygame.display.flip()
-    screen.blit(backgroundimg,background_rect)
-    screen.blit(groundimg,ground_rect)
+    screen.fill((0,0,0))
+    if inshop == False:
+        screen.blit(backgroundimg,background_rect)
+        screen.blit(groundimg,ground_rect)
     screen.blit(playerimage,player1.rect)
     screen.blit(coiniconimg,coinicon_rect)
-    screen.blit(trashimg,trash1.rect)
+    if inshop == False:
+        screen.blit(trashimg,trash1.rect)
     #function for drawing the specific image for the shop type
     shop1.type()
 
     for cloudpos1 in clouds_x_pos:
-        cloud_rect.x = cloudpos1
-        screen.blit(cloudimg,cloud_rect)
+        if inshop == False:
+            cloud_rect.x = cloudpos1
+            screen.blit(cloudimg,cloud_rect)
     drawtext(str(money),text_font,(0,0,0),1145,14)
 
     #collision stuff
-    if trash1.collided == True and player1.x == 290:
+    if trash1.collided == True and player1.x == 290 and inshop == False:
         #these 2 lines will display the button and it's text
         screen.blit(buttonimg,button1.rect)
         drawtext(str(button1.text),text_font2,(0,0,0),button1.text_x,button1.text_y)
@@ -282,8 +300,20 @@ while running:
         yes_rect.x = 590
         yes_rect.y = 365
 
+    if shop1.collided == True and inshop == False:
+        screen.blit(buttonimg,button2.rect)
+        drawtext(str(button2.text),text_font2,(0,0,0),button2.text_x,button2.text_y)
+        screen.blit(yesimg,yes_rect)
+        yes_rect.x = 590
+        yes_rect.y = 365
+
 
     
+
+    #checking if the player is in the shop
+    if inshop == True:
+        print("The player entered the shop")
+
     #timers/cooldowns
     if timer3start == True:
         timer3 += 1
@@ -318,5 +348,5 @@ while running:
     clock.tick(60)
 
     #print function debugging
-    print(player1.x)
-    #print(trash1.rect.topleft)
+    print(player1.y)
+   
