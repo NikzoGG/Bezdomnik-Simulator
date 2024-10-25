@@ -42,6 +42,7 @@ clockiconimg = pygame.image.load('assets/clockicon.png')
 clockicon_rect = clockiconimg.get_rect(topleft=(1070,80))
 shopimg1 = pygame.image.load('assets/shop1.png')
 shopimg2 = pygame.image.load('assets/shop2.png')
+doorimg = pygame.image.load("assets/door.png")
 
 #music/sound effect loading
 pygame.mixer.music.load('assets/Motion.mp3')
@@ -192,6 +193,11 @@ class Shop:
         else:
             self.collided = False
     
+class Door:
+    def __init__(self,x,y):
+        self.x = x
+        self.y = y
+        self.rect = doorimg.get_rect(topleft=(self.x,self.y))
 
 
 
@@ -202,8 +208,11 @@ trash1 = Trash(320,475,False)
 
 button1 = QuestionPopUp(400,300,385,320,'Would you like to interact with the trash?')
 button2 = QuestionPopUp(400,300,430,320,'Would you like to enter the shop?')
+button3 = QuestionPopUp(400,300,480,320,'Would you like to return?')
 
 shop1 = Shop(900,520,1,False)
+
+door1 = Door(-5,420)
 
 
 
@@ -249,6 +258,13 @@ while running:
         if yes_rect.collidepoint(mousepos) and player1.notmove == False and player1.rect.colliderect(shop1.rect):
             if pygame.mouse.get_pressed()[0] == 1:           
                 inshop = True
+                player1.x = 180
+                player1.y = 480
+
+        if yes_rect.collidepoint(mousepos) and player1.notmove == False and player1.rect.colliderect(door1.rect):
+            if pygame.mouse.get_pressed()[0] == 1:
+                inshop = False
+                
 
   
 
@@ -264,6 +280,7 @@ while running:
     #popup functions
     button1.important3()
     button2.important3()
+    button3.important3()
 
     #shop functions
     shop1.important4()
@@ -288,13 +305,13 @@ while running:
         if inshop == False:
             cloud_rect.x = cloudpos1
             screen.blit(cloudimg,cloud_rect)
-    drawtext(str(money),text_font,(0,0,0),1145,14)
+    drawtext(str(money),text_font,(255,255,102),1145,14)
 
     #collision stuff
     if trash1.collided == True and player1.x == 290 and inshop == False:
         #these 2 lines will display the button and it's text
         screen.blit(buttonimg,button1.rect)
-        drawtext(str(button1.text),text_font2,(0,0,0),button1.text_x,button1.text_y)
+        drawtext(str(button1.text),text_font2,(255,102,102),button1.text_x,button1.text_y)
         #bonus 3 line for yes
         screen.blit(yesimg,yes_rect)
         yes_rect.x = 590
@@ -302,7 +319,7 @@ while running:
 
     if shop1.collided == True and inshop == False:
         screen.blit(buttonimg,button2.rect)
-        drawtext(str(button2.text),text_font2,(0,0,0),button2.text_x,button2.text_y)
+        drawtext(str(button2.text),text_font2,(255,102,102),button2.text_x,button2.text_y)
         screen.blit(yesimg,yes_rect)
         yes_rect.x = 590
         yes_rect.y = 365
@@ -343,10 +360,21 @@ while running:
         player1.notmove = False
         timerstart = False
         timer1 = 0
+    
+    #Door 1 logic
+    if inshop == True:
+        screen.blit(doorimg,door1.rect)
+     
+
+    if player1.rect.colliderect(door1.rect) and inshop == True:
+        screen.blit(buttonimg,button3.rect)
+        screen.blit(yesimg,yes_rect)
+        drawtext(str(button3.text),text_font2,(255,102,102),button3.text_x,button3.text_y)
+        
+
 
     #fps capper
     clock.tick(60)
 
     #print function debugging
     print(player1.y)
-   
