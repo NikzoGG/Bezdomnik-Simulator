@@ -20,6 +20,7 @@ running = True
 text_font = pygame.font.SysFont('Arial',45)
 text_font2 = pygame.font.SysFont('Arial',30)
 text_font3 = pygame.font.Font('assets/ObelixProB-cyr.ttf',25)
+text_font4 = pygame.font.Font("assets/ObelixProb-cyr.ttf",10)
 
 def drawtext(text,font,color,x,y):
     img = font.render(text,True,color)
@@ -43,6 +44,8 @@ clockicon_rect = clockiconimg.get_rect(topleft=(1070,80))
 shopimg1 = pygame.image.load('assets/shop1.png')
 shopimg2 = pygame.image.load('assets/shop2.png')
 doorimg = pygame.image.load("assets/door.png")
+shopinterior = pygame.image.load("assets/shopinterior.png")
+shopinterior_rect = shopinterior.get_rect(topleft=(0,0))
 
 #music/sound effect loading
 pygame.mixer.music.load('assets/Motion.mp3')
@@ -55,6 +58,8 @@ clouds_x_pos = [100,300,500,700,900]
 #some variables
 showclockicon = False
 inshop = False
+techstats = False
+kpress = 0
 
 #statistics
 money = 0
@@ -126,10 +131,13 @@ class Player:
     
 
 
-            
 
+class Seller:
+    def __init__(self,x,y,types):
+        self.x = x
+        self.y =y
+        self.types = types
 
-        
 
 
 class Trash:
@@ -241,6 +249,9 @@ while running:
                     if player1.y == 405:
                         player1.grav -= 20
                 
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_k:
+                kpress += 1
         
         #question popup1 yes button script:
         if yes_rect.collidepoint(mousepos) and player1.notmove == False and player1.rect.colliderect(trash1.rect):
@@ -291,6 +302,12 @@ while running:
 
     pygame.display.flip()
     screen.fill((0,0,0))
+
+    #Drawing the things in the shop
+    if inshop == True:
+        screen.blit(shopinterior,shopinterior_rect)
+        screen.blit(doorimg,door1.rect)
+
     if inshop == False:
         screen.blit(backgroundimg,background_rect)
         screen.blit(groundimg,ground_rect)
@@ -327,9 +344,6 @@ while running:
 
     
 
-    #checking if the player is in the shop
-    if inshop == True:
-        print("The player entered the shop")
 
     #timers/cooldowns
     if timer3start == True:
@@ -361,20 +375,28 @@ while running:
         timerstart = False
         timer1 = 0
     
-    #Door 1 logic
-    if inshop == True:
-        screen.blit(doorimg,door1.rect)
      
-
+    #Door 1 logic
     if player1.rect.colliderect(door1.rect) and inshop == True:
         screen.blit(buttonimg,button3.rect)
         screen.blit(yesimg,yes_rect)
         drawtext(str(button3.text),text_font2,(255,102,102),button3.text_x,button3.text_y)
-        
-
-
+    
+    
     #fps capper
     clock.tick(60)
-
+    
     #print function debugging
-    print(player1.y)
+
+
+    #tech stats
+    if kpress == 1:
+        techstats = True
+
+    if kpress == 2:
+        techstats = False
+        kpress = 0
+
+
+    if techstats == True:
+        drawtext(str(clock),text_font4,(204,102,0),1060,400)
