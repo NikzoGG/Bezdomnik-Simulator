@@ -15,7 +15,8 @@ running = True
 
 #Zaduljitelni:
  #Add god mode which will be a secret. You will have infinite money,resources and you will be able to go through walls and fly around!
- #Napravi interiora na shopa
+ #Napravi shop type 2 ot vunka da ne e nqkvo zeleno laino a da e magazin
+ #Napravi kasiera da ne e basi ogromniq i go sloji na praviilno mqsto
 
 text_font = pygame.font.SysFont('Arial',45)
 text_font2 = pygame.font.SysFont('Arial',30)
@@ -46,6 +47,8 @@ shopimg2 = pygame.image.load('assets/shop2.png')
 doorimg = pygame.image.load("assets/door.png")
 shopinterior = pygame.image.load("assets/shopinterior.png")
 shopinterior_rect = shopinterior.get_rect(topleft=(0,0))
+cashierimg = pygame.image.load("assets/cashier.png")
+cashierimg2 = pygame.image.load("assets/cashier2.png")
 
 #music/sound effect loading
 pygame.mixer.music.load('assets/Motion.mp3')
@@ -137,8 +140,13 @@ class Seller:
         self.x = x
         self.y =y
         self.types = types
+        self.rect = cashierimg.get_rect(topleft=(100,100))
 
-
+    def type2(self):
+        if self.types == 1:
+            self.rect = cashierimg.get_rect(topleft=(100,100))
+        elif self.types == 2:
+            self.rect = cashierimg2.get_rect(topleft=(100,100))
 
 class Trash:
     def __init__(self,x,y,collided):
@@ -222,6 +230,9 @@ shop1 = Shop(900,520,1,False)
 
 door1 = Door(-5,420)
 
+cashier1 = Seller(100,100,1)
+
+
 
 
 
@@ -296,6 +307,11 @@ while running:
     #shop functions
     shop1.important4()
     shop1.collidecheck()
+    shop1.type()
+
+    #cashier functions
+    cashier1.type2()
+
 
 
 
@@ -307,6 +323,10 @@ while running:
     if inshop == True:
         screen.blit(shopinterior,shopinterior_rect)
         screen.blit(doorimg,door1.rect)
+        if cashier1.types == 1:
+            screen.blit(cashierimg,cashier1.rect)
+        elif cashier1.types == 2:
+            screen.blit(cashierimg2,cashier1.rect)
 
     if inshop == False:
         screen.blit(backgroundimg,background_rect)
@@ -316,7 +336,7 @@ while running:
     if inshop == False:
         screen.blit(trashimg,trash1.rect)
     #function for drawing the specific image for the shop type
-    shop1.type()
+
 
     for cloudpos1 in clouds_x_pos:
         if inshop == False:
